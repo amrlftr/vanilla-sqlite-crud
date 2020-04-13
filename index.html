@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Users</title>
+
+    <link rel="stylesheet" href="css/normalize.css" />
+    <link rel="stylesheet" href="css/skeleton.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <h5>Create New User</h5>
+      <form id="user_form" class="row" method="post">
+        <div class="five columns">
+          <input
+            type="text"
+            class="u-full-width"
+            name="name"
+            id="name"
+            placeholder="Enter Status"
+          />
+        </div>
+        <div class="five columns">
+          <input
+            type="text"
+            class="u-full-width"
+            name="status"
+            id="status"
+            placeholder="Enter Status"
+          />
+        </div>
+        <button class="two columns button-primary" type="submit">Save</button>
+      </form>
+
+      <table class="u-full-width">
+        <thead>
+          <tr>
+            <th style="width: 45%;">Name</th>
+            <th style="width: 30%;">Status</th>
+            <th>Action(s)</th>
+          </tr>
+        </thead>
+        <tbody id="data_users"></tbody>
+      </table>
+    </div>
+
+    <script>
+      // GET USER
+      getUser = async () => {
+        let response = await fetch("api/api-get-user.php", {
+          method: "GET",
+        }).then((response) => response.json());
+
+        for (const i in response) {
+          document.querySelector("#data_users").insertAdjacentHTML(
+            "beforeend",
+            `<tr id='user_${response[i].id}'>
+              <td contenteditable='true'>${response[i].name}</td>
+              <td contenteditable='true'>${response[i].status}</td>
+              <td>
+                <button class='button-primary' onclick='updateUser(this)'>Edit</button>
+                <button class='button' onclick='deleteUser(${response[i].id})' style="background-color: #FF4A54; color: white">Delete</button>
+              </td>
+            </tr>`
+          );
+        }
+      };
+
+      getUser();
+
+      // INSERT USER
+      // since user_form is an object, so no need to do document.querySelector("#user_form")
+      user_form.onsubmit = async (e) => {
+        e.preventDefault();
+
+        let response = await fetch("api/api-create-user.php", {
+          method: "POST",
+          body: new FormData(user_form),
+        }).then((response) => response.json());
+
+        if (response.status === "success") {
+          // reset user list
+          document.querySelector("#data_users").innerHTML = "";
+          getUser();
+        }
+      };
+
+      // UPDATE USER
+      updateUser = async (element) => {
+        // find nearest parent node with id
+        while (!element.id) {
+          element = element.parentNode;
+        }
+
+        // get editable data
+        let data = new FormData();
+
+        const data_append = {
+          id: element.id.substr(element.id.indexOf("_") + 1),
+          name: document.querySelector(`#${element.id}`).children[0]
+            .textContent,
+          status: document.querySelector(`#${element.id}`).children[1]
+            .textContent,
+        };
+
+        // iterate over object key val pairs instead of usual array data like
+        for (let [key, val] of Object.entries(data_append)) {
+          data.append(key, val);
+        }
+
+        let response = await fetch("api/api-update-user.php", {
+          method: "POST",
+          body: data,
+        }).then((response) => response.json());
+
+        if (response.status === "success") {
+          // reset user list
+          document.querySelector("#data_users").innerHTML = "";
+          getUser();
+        }
+      };
+
+      // DELETE USER
+      deleteUser = async (delete_id) => {
+        if (confirm("are u sure to delete?")) {
+          let data = new FormData();
+          data.append("delete_id", delete_id);
+
+          let response = await fetch("api/api-delete-user.php", {
+            method: "POST",
+            body: data,
+          }).then((response) => response.json());
+
+          if (response.status === "success") {
+            // reset user list
+            document.querySelector("#data_users").innerHTML = "";
+            getUser();
+          }
+        }
+      };
+    </script>
+  </body>
+</html>

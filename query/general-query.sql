@@ -1,0 +1,11 @@
+-- SQLite
+CREATE TABLE IF NOT EXISTS users(
+  id INTEGER NOT NULL PRIMARY KEY,
+  name TEXT NOT NULL,
+  status TEXT NOT NULL);
+
+-- DROP TABLE users;
+
+SELECT * FROM users;
+
+DELETE FROM users WHERE id = 4;
