@@ -1,10 +1,16 @@
 - install gulp cli global
-  npm i gulp-cli -g
+ ```
+ npm i gulp-cli -g
+ ```
 
 - install SQLite (by alexcvzz) extension
 
 - install all dependencies
-  npm install
+```
+npm install
+```
 
 - start server by..
-  gulp watch
+```
+gulp watch
+```
